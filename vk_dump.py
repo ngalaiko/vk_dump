@@ -1,6 +1,7 @@
 import argparse
 import func
 import sys
+import os
 
 def create_parser():
 	parser = argparse.ArgumentParser()
@@ -23,4 +24,11 @@ if __name__ == '__main__':
 		namespace.vk_login,
 		namespace.vk_password)
 
-	print(vk_api)
+	# first, get user id 
+	user_id = func.me(vk_api)
+
+	if not os.path.exists('./result'):
+		os.makedirs('./result')
+
+	func.dump_friends(vk_api, user_id)
+	func.dump_dialogs(vk_api, user_id)
