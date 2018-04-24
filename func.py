@@ -3,6 +3,8 @@ import time
 import os
 import vk 
 
+api_version = '2.0.2'
+
 # returns obj to access api
 def auth(vk_token, vk_login, vk_password):
 	vk_api = None
@@ -24,7 +26,7 @@ def auth(vk_token, vk_login, vk_password):
 
 # returnes if of authorized user
 def me(vk_api):
-	response = vk_api.users.get(v='2.0.2')
+	response = vk_api.users.get(v=api_version)
 	current_id = response[0]['uid']
 
 	return current_id
@@ -32,7 +34,7 @@ def me(vk_api):
 def dump_friends(vk_api, user_id):
 	print('dumping friends...')
 	
-	friends = vk_api.friends.get(user_id=user_id, order='hints', fields='nickname', v='2.0.2')
+	friends = vk_api.friends.get(user_id=user_id, order='hints', fields='nickname', v=api_version)
 	with open('./result/friends.txt', 'w') as f:
 		for user in friends:
 			f.write(
@@ -48,7 +50,7 @@ def dump_dialogs(vk_api, user_id):
 
 	all_dialogs = []
 	while True:
-		response = vk_api.messages.getDialogs(count=200, offset=offset, v='2.0.2')
+		response = vk_api.messages.getDialogs(count=200, offset=offset, v=api_version)
 		dialogs = response[1:]
 		all_dialogs.append(dialogs)
 
@@ -71,7 +73,7 @@ def dump_dialogs(vk_api, user_id):
 				newpath += '/groups/' + dialog['title']
 			except:
 				# get user
-				user = vk_api.users.get(user_ids=dialog['uid'], v='2.0.2')[0]
+				user = vk_api.users.get(user_ids=dialog['uid'], v=api_version)[0]
 				
 				newpath += '/messages/' + user['first_name'] + ' ' + user['last_name']
 				id_to_dump = user['uid']
@@ -98,14 +100,14 @@ def dump_dialog_history(vk_api, user_id, is_multichat, path):
 	all_users = {}
 
 	if not is_multichat:
-		user = vk_api.users.get(user_ids=user_id, v='2.0.2')[0]
+		user = vk_api.users.get(user_ids=user_id, v=api_version)[0]
 		all_users[user['uid']] = user
 
 		print('	dumping history with', user['first_name'], user['last_name'] + '...')
 
 		sleep()
 	else:
-		chat = vk_api.messages.getChat(chat_id=user_id, v='2.0.2')
+		chat = vk_api.messages.getChat(chat_id=user_id, v=api_version)
 
 		print('	dumping history in', chat['title'] + '...')
 
@@ -115,7 +117,7 @@ def dump_dialog_history(vk_api, user_id, is_multichat, path):
 		sleep()
 
 	while True:
-		response = vk_api.messages.getHistory(user_id=user_id, v='2.0.2', count=200, offset = offset, rev = 1)
+		response = vk_api.messages.getHistory(user_id=user_id, v=api_version, count=200, offset = offset, rev = 1)
 		messages = response[1:]
 		all_messages += messages
 
@@ -131,7 +133,7 @@ def dump_dialog_history(vk_api, user_id, is_multichat, path):
 		sleep()
 
 	# map of all users in chat
-	users = vk_api.users.get(user_ids=all_user_ids, v='2.0.2')
+	users = vk_api.users.get(user_ids=all_user_ids, v=api_version)
 	for user in users:
 		all_users[user['uid']] = user
 	
@@ -167,7 +169,7 @@ def dump_attachments(vk_api, message, history_file, photos_file, vieos_file):
 				photos_file.write(photo_url + '\n')
 				history_file.write(photo_url + '\n')
 			elif attatchment['type'] == 'video':
-				video = vk_api.video.get(v='2.0.2', videos=
+				video = vk_api.video.get(v=api_version, videos=
 					str(attatchment['video']['owner_id']) + '_' +
 					str(attatchment['video']['vid']) + '_' +
 					str(attatchment['video']['access_key']))[1]
