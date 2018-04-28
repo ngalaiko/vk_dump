@@ -72,21 +72,19 @@ def dump_dialogs(vk_api, user_id):
 				is_multichat = True
 				newpath += '/groups/' + dialog['title']
 			except:
-				# get user
-				user = vk_api.users.get(user_ids=dialog['uid'], v=api_version)[0]
-				
-				newpath += '/messages/' + user['first_name'] + ' ' + user['last_name']
-				id_to_dump = user['uid']
+				try:
+					# get user
+					user = vk_api.users.get(user_ids=dialog['uid'], v=api_version)[0]
+				except IndexError:
+					print("IndexError has occured")
+				else:
+					newpath += '/messages/' + user['first_name'] + ' ' + user['last_name']
+					id_to_dump = user['uid']
+					if not os.path.exists(newpath):
+						os.makedirs(newpath)
 
-				need_sleep = True	
-			finally:
-				if not os.path.exists(newpath):
-					os.makedirs(newpath)
-
-			if need_sleep:
-				sleep()
-
-			dump_dialog_history(vk_api, id_to_dump, is_multichat, newpath)
+					sleep()
+					dump_dialog_history(vk_api, id_to_dump, is_multichat, newpath)
 
 		offset += 200
 		sleep()
